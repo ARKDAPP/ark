@@ -271,10 +271,11 @@ var getUserByAddrCB = function (err, result){
 		a.push(web3.utils.fromWei(BN(result[4]).toFixed(), 'ether'));
 		// user index
 		a.push(BN(result[8]).toFixed());
-		
+
 		$('.pext-incomeper').html(
 			BN(a[1]).times(BN(0.003)).toFixed(3, 1) + ' ~ ' + BN(a[1]).times(BN(0.022)).toFixed(3, 1)
 		);	
+		$('.p-teth').html(BN(a[1]).toFixed(8, 1));
 		
 	} else {
 		console.log(err);
@@ -388,7 +389,6 @@ var getWebGameInfoCB = function(err, result) {
 		$('.ext-times').html(a[2]);
 		$('.burn-times').html(parseInt(a[2] / 10));
 		$('.ext-destory').html(parseInt(a[3]));
-		$('.p-teth').html(BN(a[4]).toFixed(8, 1));
 		
 		// show pool
 		iconins.methods.showPool().call({from:ticket}, function(err1, result2){
