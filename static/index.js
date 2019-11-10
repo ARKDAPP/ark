@@ -1,8 +1,10 @@
-var gcontract = "0x24aB9fD6944F6768Fa0c0Aa9dDA02DAa0fEa9EdB";
-var ticket = "0xa3ea81D043325F72f2f2016322a087f90177bD26";
+var gcontract = "0x62bD064d399016490933915200534a7Bb0D7466f";
+var ticket = "0x499C83DC2d90303382a5315f6E3DaBF46eaADE19";
+var fcontract = "0xD4585de767522084fAe6379f2CA9cda68D860878";
 var BN = BigNumber.clone();
 var iconins;
 var itickets;
+var ifeecon;
 var gnetId = 1;
 var netCheck = false;
 var symbol;
@@ -74,9 +76,10 @@ var checkNet = function() {
 var handlerWeb3 = function(web3) {
 	iconins = new web3.eth.Contract(abi, gcontract);
 	itickets = new web3.eth.Contract(abitoken, ticket);
+	ifeecon = new web3.eth.Contract(feeabi, fcontract);
 	web3.eth.net.getId(function(err, netId) {
 		if (netId != gnetId) {
-			if (gnetId == 3 || gnetId == 4) {
+			if (gnetId == 3 || gnetId == 4 || gnetId == 10) {
 				alertify.error(tipl[0]);
 			}
 			if (gnetId == 1) {
@@ -180,6 +183,7 @@ var updateSymbol = function(symbol) {
 var update1 = function() {
 	if (defaultAccount != '' && iconins) {
 		iconins.methods.getWebUserInfo(defaultAccount).call({from: ticket}, getWebUserInfoCB);
+		iconins.methods.getUserByAddr(defaultAccount).call({from: ticket}, getUserByAddrCB);
 		iconins.methods.getRewardRecord(defaultAccount).call({from: ticket}, getRewardRecordCB);
 		iconins.methods.getWebGameInfo().call({from: ticket}, getWebGameInfoCB);
 		updateIntiveLink();
@@ -244,7 +248,7 @@ var getWebUserInfoCB = function(err, result) {
 		myInviterProcess(a[6]);
 		
 		myWithdrawals = a[4];
-		
+
 		var exp = parseInt(a[2]) + 86400;
 		var diff = exp - Math.round(new Date().getTime() / 1000);	
 		refreshIncomeTimer(diff);
@@ -391,9 +395,13 @@ var getWebGameInfoCB = function(err, result) {
 		$('.ext-destory').html(parseInt(a[3]));
 		
 		// show pool
-		iconins.methods.showPool().call({from:ticket}, function(err1, result2){
+		/* iconins.methods.showPool().call({from:ticket}, function(err1, result2){
 			$('.s-bqp').html(BN(web3.utils.fromWei(BN(result2[6]).toFixed(), 'ether')).toFixed(8, 1));
+		}); */
+		web3.eth.getBalance(fcontract, function(err1, result2){
+			$('.s-bqp').html(BN(web3.utils.fromWei(BN(result2).toFixed(), 'ether')).toFixed(8,1));
 		});
+		
 	}
 };
 /* invest */
@@ -515,7 +523,7 @@ var init = function() {
 			value: etherValue,
 			gas: 100000
 		};
-		iconins.methods.buy_abc().send(message, function(err, result) {
+		itickets.methods.buy_abc().send(message, function(err, result) {
 			if (err) {
 				console.log(err);
 				alertify.error('购买门票失败，请检查以太坊余额和门票额度是否足够。');
